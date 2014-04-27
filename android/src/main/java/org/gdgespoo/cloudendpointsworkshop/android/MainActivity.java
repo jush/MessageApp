@@ -20,6 +20,12 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+
+import org.gdgespoo.cloudendpointsworkshop.backend.registration.Registration;
 
 import java.io.IOException;
 
@@ -40,6 +46,8 @@ public class MainActivity extends ActionBarActivity {
      * Google Cloud Messaging registration ID
      */
     private String regid;
+
+    private Registration regService;
 
     /**
      * @return Application's version code from the {@code PackageManager}.
@@ -67,6 +75,19 @@ public class MainActivity extends ActionBarActivity {
         if (checkPlayServices()) {
             // If this check succeeds, proceed with normal processing.
             // Otherwise, prompt user to get valid Play Services APK.
+            Registration.Builder builder = new Registration.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null)
+                    // need setRootUrl and Initializer for running against devappserver, otherwise they can be skipped
+                    .setRootUrl("https://aesthetic-site-557.appspot.com/_ah/api/").setGoogleClientRequestInitializer
+                            (new GoogleClientRequestInitializer() {
+                        @Override
+                        public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws
+                                IOException {
+                            abstractGoogleClientRequest.setDisableGZipContent(true);
+                        }
+                    });
+            regService = builder.build();
+
             gcm = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
 
@@ -164,8 +185,8 @@ public class MainActivity extends ActionBarActivity {
      * device sends upstream messages to a server that echoes back the message
      * using the 'from' address in the message.
      */
-    private void sendRegistrationIdToBackend() {
-        // Your implementation here.
+    private void sendRegistrationIdToBackend() throws IOException {
+        regService.register(regid).execute();
     }
 
     /**
