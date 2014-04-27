@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="registration-v1-1.18.0-rc-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/gdgespoo/cloudendpointsworkshop/backend/registration/v1-1.18.0-rc-SNAPSHOT/registration-v1-1.18.0-rc-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/gdgespoo/cloudendpointsworkshop/backend/registration/v1-1.18.0-rc-SNAPSHOT/registration-v1-1.18.0-rc-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

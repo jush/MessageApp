@@ -1,5 +1,11 @@
 apply plugin: 'android'
 
+repositories {
+    // this is required to reference the locally installed endpoints
+    // Reference the local Maven repository
+    mavenLocal()
+}
+
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.3"
@@ -22,4 +28,21 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.android.support:support-v4:19.1.0'
+
+    // required for GCM
+    // Make sure that you have installed "Extras -> Google Play services" component in Android SDK Manager
+    compile 'com.google.android.gms:play-services:3.1.+'
+
+    compile('com.google.http-client:google-http-client-android:1.18.0-rc') {
+        exclude(group: 'com.google.android', module: 'android')
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+    }
+
+    // custom endpoints (includes google-api-client automatically)
+    compile('org.gdgespoo.cloudendpointsworkshop.backend:messaging:v1-1.18.0-rc-SNAPSHOT') {
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+    }
+    compile('org.gdgespoo.cloudendpointsworkshop.backend:registration:v1-1.18.0-rc-SNAPSHOT') {
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+    }
 }

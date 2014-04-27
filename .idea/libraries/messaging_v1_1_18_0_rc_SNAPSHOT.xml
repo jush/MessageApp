@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="messaging-v1-1.18.0-rc-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/gdgespoo/cloudendpointsworkshop/backend/messaging/v1-1.18.0-rc-SNAPSHOT/messaging-v1-1.18.0-rc-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/gdgespoo/cloudendpointsworkshop/backend/messaging/v1-1.18.0-rc-SNAPSHOT/messaging-v1-1.18.0-rc-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
