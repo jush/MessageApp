@@ -5,7 +5,9 @@ import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 import com.google.api.server.spi.config.Api;
+import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
+import com.google.api.server.spi.response.CollectionResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,6 +53,11 @@ public class MessagingEndpoint {
         if (message.length() > 1000) {
             message = message.substring(0, 1000) + "[...]";
         }
+
+        MessageRecord messageRecord = new MessageRecord();
+        messageRecord.setMessage(message);
+        ofy().save().entity(messageRecord).now();
+
         Sender sender = new Sender(API_KEY);
         Message msg = new Message.Builder().addData("message", message).build();
         List<RegistrationRecord> records = ofy().load().type(RegistrationRecord.class).limit(10).list();
@@ -77,5 +84,19 @@ public class MessagingEndpoint {
                 }
             }
         }
+    }
+
+    /**
+     * Return a collection of sent messages
+     *
+     * @param count The number of messages to list
+     * @return a list of messages
+     */
+    @ApiMethod(name = "listMessages")
+    public CollectionResponse<MessageRecord> listMessages(
+            @Named("count")
+            int count) {
+        List<MessageRecord> records = ofy().load().type(MessageRecord.class).limit(count).list();
+        return CollectionResponse.<MessageRecord>builder().setItems(records).build();
     }
 }
