@@ -15,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,6 +27,7 @@ import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
+import org.gdgespoo.cloudendpointsworkshop.backend.messaging.Messaging;
 import org.gdgespoo.cloudendpointsworkshop.backend.registration.Registration;
 
 import java.io.IOException;
@@ -48,6 +51,8 @@ public class MainActivity extends ActionBarActivity {
     private String regid;
 
     private Registration regService;
+
+    private Messaging messagingService;
 
     /**
      * @return Application's version code from the {@code PackageManager}.
@@ -87,6 +92,10 @@ public class MainActivity extends ActionBarActivity {
                         }
                     });
             regService = builder.build();
+
+            Messaging.Builder builder1 = new Messaging.Builder(AndroidHttp.newCompatibleTransport(),
+                    new AndroidJsonFactory(), null);
+            messagingService = builder1.build();
 
             gcm = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
@@ -174,6 +183,7 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             protected void onPostExecute(String msg) {
+                Log.d(TAG, msg);
                 Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
             }
         }.execute(null, null, null);
@@ -250,6 +260,21 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void sendMessage(String message) {
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... params) {
+                String message = params[0];
+                try {
+                    messagingService.messagingEndpoint().sendMessage(message).execute();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error sending message", e);
+                }
+                return null;
+            }
+        }.execute(message);
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -261,6 +286,15 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            final TextView messageView = (TextView) rootView.findViewById(R.id.editText);
+            Button sendMessageBt = (Button) rootView.findViewById(R.id.button);
+            sendMessageBt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    MainActivity mainActivity = (MainActivity) getActivity();
+                    mainActivity.sendMessage(messageView.getText().toString());
+                }
+            });
             return rootView;
         }
     }
