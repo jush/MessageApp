@@ -28,12 +28,16 @@ import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
 import org.gdgespoo.cloudendpointsworkshop.backend.messaging.Messaging;
+import org.gdgespoo.cloudendpointsworkshop.backend.messaging.model.CollectionResponseMessageRecord;
+import org.gdgespoo.cloudendpointsworkshop.backend.messaging.model.MessageRecord;
 import org.gdgespoo.cloudendpointsworkshop.backend.registration.Registration;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements MessagesFragment.OnFragmentInteractionListener {
     public static final String PROPERTY_REG_ID = "registration_id";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "CHAT";
@@ -68,11 +72,17 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    public void onFragmentInteraction(String id) {
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, new MessagesFragment(),
+                    "messages").commit();
         }
 
         context = getApplicationContext();
@@ -103,7 +113,33 @@ public class MainActivity extends ActionBarActivity {
             if (regid.isEmpty()) {
                 registerInBackground();
             }
+
+            retrieveMessagesInBackground();
         }
+    }
+
+    private void retrieveMessagesInBackground() {
+        new AsyncTask<Void, Void, List<MessageRecord>>() {
+            @Override
+            protected List<MessageRecord> doInBackground(Void... params) {
+                try {
+                    CollectionResponseMessageRecord response = messagingService.listMessages(10).execute();
+                    if (response != null && response.getItems() != null) {
+                        return response.getItems();
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Error reading messages", e);
+                }
+                return Collections.emptyList();
+            }
+
+            @Override
+            protected void onPostExecute(List<MessageRecord> messageRecords) {
+                MessagesFragment messagesFragment = (MessagesFragment) getSupportFragmentManager().findFragmentByTag
+                        ("messages");
+                messagesFragment.replaceMessages(messageRecords);
+            }
+        }.execute();
     }
 
     /**
